@@ -244,6 +244,7 @@
                 android:gravity="center"
                 android:background="@color/key_background_color"
                 android:text="x^2"
+                android:textAllCaps="false"
                 android:textColor="@color/key_text_color"
                 android:textSize="32sp" />
 

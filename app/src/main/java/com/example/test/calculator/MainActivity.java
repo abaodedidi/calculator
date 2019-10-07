@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.test.ui.CalculatorEditText;
+import com.example.test.utils.CalculateExecutor;
 import com.example.test.utils.Constant;
 import com.example.test.utils.SymbolViewAdapter;
 import com.example.test.utils.Utils;
@@ -25,8 +26,11 @@ public class MainActivity extends Activity implements View.OnClickListener {
     private CalculatorEditText mInputView;
     private RecyclerView mSymbolView;
     private SymbolViewAdapter mSymbolAdapter;
+    private CalculateExecutor calculateExecutor;
     private TextView tv_old;
     private String mInput;
+    
+    private boolean isClickEqual;
     private String mOldInput;
 
     private Button btn_0;
@@ -48,6 +52,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
     private Button btn_div;
     private Button btn_square;
     private Button btn_reciprocal;
+    private Button btn_equal;
 
     private Button btn_func_add;
     private Button btn_clear;
@@ -70,6 +75,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
     private void init() {
         mInput = "";
         mOldInput = "";
+        calculateExecutor = new CalculateExecutor(getApplicationContext());
         LinearLayoutManager manager = new LinearLayoutManager(getApplicationContext());
         manager.setOrientation(LinearLayoutManager.HORIZONTAL);
         if (mSymbolView != null) {
@@ -107,6 +113,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
         btn_del = findViewById(R.id.btn_del);
         btn_bracket_left = findViewById(R.id.btn_bracket_left);
         btn_bracket_right = findViewById(R.id.btn_bracket_right);
+        btn_equal = findViewById(R.id.btn_equal);
         btn_0.setOnClickListener(this);
         btn_1.setOnClickListener(this);
         btn_2.setOnClickListener(this);
@@ -130,12 +137,20 @@ public class MainActivity extends Activity implements View.OnClickListener {
         btn_del.setOnClickListener(this);
         btn_bracket_left.setOnClickListener(this);
         btn_bracket_right.setOnClickListener(this);
+        btn_equal.setOnClickListener(this);
     }
 
     SymbolViewAdapter.SymbolListener mSymbolListener = new SymbolViewAdapter.SymbolListener() {
 
         @Override
         public void onSymbolClick(int index) {
+            if (mInput.equals("Error")) {
+                mInput = "0";
+            }
+            if (isClickEqual) {
+                mInput = "";
+                isClickEqual = false;
+            }
             switch (index) {
                 case 0:
                     setFunInputView("sin(");
@@ -153,13 +168,13 @@ public class MainActivity extends Activity implements View.OnClickListener {
                     setIndexInputView("^(");
                     break;
                 case 5:
-                    setFunInputView("√");
+                    setFunInputView("√(");
                     break;
                 case 6:
-                    setFunInputView("log");
+                    setFunInputView("log(");
                     break;
                 case 7:
-                    setFunInputView("ln");
+                    setFunInputView("ln(");
                     break;
             }
         }
@@ -183,6 +198,13 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
+        if (mInput.equals("Error")) {
+            mInput = "0";
+        }
+        if (v.getId() != R.id.btn_equal && isClickEqual) {
+            mInput = "";
+            isClickEqual = false;
+        }
         switch (v.getId()) {
             case R.id.btn_0:
                 if (mInput.length() == 0) {
@@ -238,27 +260,27 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 setOperaInputView("-");
                 break;
             case R.id.btn_mul:
-                setOperaInputView("x");
+                setOperaInputView("×");
                 break;
             case R.id.btn_div:
                 setOperaInputView("÷");
                 break;
             case R.id.btn_π:
-                setNumInputView("π");
+                setFunInputView("π");
                 break;
             case R.id.btn_e:
-                setNumInputView("e");
+                setFunInputView("e");
                 break;
             case R.id.btn_square:
                 setIndexInputView("^2");
                 break;
             case R.id.btn_reciprocal:
-                setFunInputView("(1/");
+                setFunInputView("(1÷");
                 break;
             case R.id.btn_func_add:
                 break;
             case R.id.btn_clear:
-                mInput="0";
+                mInput = "0";
                 mInputView.setText(mInput);
                 break;
             case R.id.btn_del:
@@ -297,26 +319,35 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 }
                 mInputView.setText(mInput);
                 break;
+            case R.id.btn_equal:
+                isClickEqual=true;
+                String result = calculateExecutor.scienceCalculate(mInput);
+                mInput = result;
+                if (mInput.charAt(mInput.length() - 2) == '.' && mInput.charAt(mInput.length() - 1) == '0') {
+                    mInput = mInput.substring(0, mInput.length() - 2);
+                }
+                mInputView.setText(mInput);
+                break;
         }
     }
-    
-    private void setOperaInputView(String value){
-        if(mInput.length()==0){
+
+    private void setOperaInputView(String value) {
+        if (mInput.length() == 0) {
             return;
-        }else{
-            char lastInput=getLastInput();
-            if(Utils.isNum(lastInput+"")||lastInput==')'||lastInput=='e'||lastInput=='π'){
-                mInput+=value;
+        } else {
+            char lastInput = getLastInput();
+            if (Utils.isNum(lastInput + "") || lastInput == ')' || lastInput == 'e' || lastInput == 'π') {
+                mInput += value;
             }
         }
         mInputView.setText(mInput);
     }
-    
-    private void setIndexInputView(String value){
-        if(mInput.length()==0){
+
+    private void setIndexInputView(String value) {
+        if (mInput.length() == 0) {
             return;
-        }else if(Utils.isNum(getLastInput()+"")||")".equals(getLastInput()+"")){
-            mInput+=value;
+        } else if (Utils.isNum(getLastInput() + "") || ")".equals(getLastInput() + "")) {
+            mInput += value;
         }
         mInputView.setText(mInput);
     }
@@ -335,7 +366,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 mInput += value;
             } else {
                 if (Utils.isNoNumAfter(mInput.charAt(0))) {
-                    mInput = "×" + value;
+                    mInput = mInput + "×" + value;
                 } else {
                     Utils.showToast(getApplicationContext(), getString(R.string.input_wrong));
                 }

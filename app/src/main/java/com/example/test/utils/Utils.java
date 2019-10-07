@@ -19,6 +19,15 @@ public class Utils {
         return matcher.matches();
     }
 
+    public static boolean isRealNum(String str) {
+        if (str == null || str.equals("")) {
+            return false;
+        }
+        Pattern pattern = Pattern.compile(Constant.REGEX_REAL_NUMBER);
+        Matcher matcher = pattern.matcher(str);
+        return matcher.matches();
+    }
+
     public static boolean isNoNumAfter(char c) {
         for (int i = 0; i < Constant.noNumAfter.length; i++) {
             if (Constant.noNumAfter[i] == c) {
@@ -28,13 +37,26 @@ public class Utils {
         return false;
     }
 
-    public static boolean isOpera(char c) {
+    public static boolean isExtrOpera(char c) {
         for (int i = 0; i < Constant.operaSymbol.length; i++) {
             if (Constant.operaSymbol[i] == c) {
                 return true;
             }
         }
         return false;
+    }
+
+    public static boolean isOpera(char c) {
+        for (int i = 0; i < Constant.baseOpera.length; i++) {
+            if (Constant.baseOpera[i] == c) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean containOpera(String mathStr) {
+        return mathStr.contains("+") || mathStr.contains("-") || mathStr.contains("×") || mathStr.contains("÷");
     }
 
     public static void showToast(Context context, String value) {

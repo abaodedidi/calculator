@@ -2,4 +2,6 @@
     <string name="app_name">calculator</string>
     <string name="app_title">科学计算器</string>
     <string name="input_wrong">您的输入有误！</string>
+    <string name="div_zero">除数为0！</string>
+    <string name="math_error">您输入的算式有误！</string>
 </resources>

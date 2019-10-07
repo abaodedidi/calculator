@@ -54,9 +54,17 @@ public class SymbolViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
+        final int position=i;
         if(mSymbolList==null)return;
         ((TextView)viewHolder.itemView).setText(mSymbolList.get(i));
-
+        ((TextView)viewHolder.itemView).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(mSymbolListener!=null){
+                    mSymbolListener.onSymbolClick(position);
+                }
+            }
+        });
     }
 
     @Override

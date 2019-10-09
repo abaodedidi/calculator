@@ -5,6 +5,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.EditText;
 
+
 public class CalculatorEditText extends EditText {
     public CalculatorEditText(Context context) {
         super(context);

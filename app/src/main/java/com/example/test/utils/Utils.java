@@ -7,7 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 工具类
+ * Utility class
  */
 public class Utils {
     public static boolean isNum(String str) {

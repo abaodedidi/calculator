@@ -10,10 +10,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
+/**
+ * Arithmetic calculation class
+ */
 public class CalculateExecutor {
 
-    //Map结构方便后面取运算符的下标
-    private final Map<Character, Integer> operMap = new HashMap<Character, Integer>() {{
+    //operational symbol map
+    private final Map<Character, Integer> operationMap = new HashMap<Character, Integer>() {{
         put('+', 0);
         put('-', 1);
         put('×', 2);
@@ -23,16 +26,15 @@ public class CalculateExecutor {
         put('#', 6);
     }};
 
-    //运算符优先级表，operPrior[oper1下标][oper2下标]
-    private final char[][] operPrior = {
-            /* (o1,o2)  +    -    ×    /    (    )    # */
-            /*  +  */ {'>', '>', '<', '<', '<', '>', '>'},
-            /*  -  */ {'>', '>', '<', '<', '<', '>', '>'},
-            /*  ×  */ {'>', '>', '>', '>', '<', '>', '>'},
-            /*  /  */ {'>', '>', '>', '>', '<', '>', '>'},
-            /*  (  */ {'<', '<', '<', '<', '<', '=', ' '},
-            /*  )  */ {'>', '>', '>', '>', ' ', '>', '>'},
-            /*  #  */ {'<', '<', '<', '<', '<', ' ', '='},
+    //operator priority two-dimensional array
+    private final char[][] operationPriority = {
+            {'>', '>', '<', '<', '<', '>', '>'},
+            {'>', '>', '<', '<', '<', '>', '>'},
+            {'>', '>', '>', '>', '<', '>', '>'},
+            {'>', '>', '>', '>', '<', '>', '>'},
+            {'<', '<', '<', '<', '<', '=', ' '},
+            {'>', '>', '>', '>', ' ', '>', '>'},
+            {'<', '<', '<', '<', '<', ' ', '='},
     };
 
     private Context mContext;
@@ -41,7 +43,8 @@ public class CalculateExecutor {
         this.mContext = context;
     }
 
-    public String scienceCalculate(String mathStr) {
+    //science calculate
+    public String scienceCalculate(String mathStr, int percision) {
         String resultStr = "";
         if (!checkMathStrAvailable(mathStr)) {
             Utils.showToast(mContext, mContext.getString(R.string.math_error));
@@ -52,7 +55,6 @@ public class CalculateExecutor {
         mathStr = mathStr.replace("π", String.valueOf(Math.PI));
         mathStr = mathStr.replace("e", String.valueOf(Math.exp(1)));
 
-        //首先处理指数函数运算
         if (mathStr.contains("^")) {
             mathStr = calculateIndex(mathStr);
         }
@@ -66,13 +68,13 @@ public class CalculateExecutor {
             resultStr = "Error";
         else {
             BigDecimal b = new BigDecimal(result);
-            resultStr = String.valueOf(b.setScale(8, BigDecimal.ROUND_HALF_UP).doubleValue()); //四舍五入保留相应位数小数
+            resultStr = String.valueOf(b.setScale(percision, BigDecimal.ROUND_HALF_UP).doubleValue()); //rounding to reserve the corresponding decimal number
         }
 
         return resultStr;
     }
 
-    //基本运算
+    //basic operations
     public double baseCalculate(double x, char o, double y) {
         double result = 0;
         switch (o) {
@@ -99,11 +101,11 @@ public class CalculateExecutor {
         return result;
     }
 
-    //检查输入数据是否合法
+    //check the validity of input data
     private boolean checkMathStrAvailable(String mathStr) {
         int leftBracketNum = 0;
         int rightBracketNum = 0;
-        //检查括号是否合法
+        //check whether brackets are legitimate
         if (mathStr.contains("(") || mathStr.contains(")")) {
             for (int i = 0; i < mathStr.length(); i++) {
                 if (mathStr.charAt(i) == '(') {
@@ -116,7 +118,7 @@ public class CalculateExecutor {
                 return false;
             }
         }
-        //检查算式开头和结尾是否有误
+        //check the beginning and end of the formula
 //        char start=mathStr.charAt(0);
         char end = mathStr.charAt(mathStr.length() - 1);
         if (!(Utils.isNum(end + "") || Utils.isNoNumAfter(end))) {
@@ -125,6 +127,7 @@ public class CalculateExecutor {
         return true;
     }
 
+    //calculate the result of the exponential operation
     private String calculateIndex(String math) {
         String mathStr = math;
         while (mathStr.contains("^")) {
@@ -181,6 +184,7 @@ public class CalculateExecutor {
         return mathStr;
     }
 
+    //calculate the result of the operation of the function
     private String calculateFunc(String math) {
         String mathStr = math;
         while (containFunc(mathStr)) {
@@ -238,20 +242,20 @@ public class CalculateExecutor {
         return mathStr;
     }
 
+
     private double calculateMath(String math) {
         if (math.length() == 0) {
             return Double.MAX_VALUE;
         } else {
             if (Utils.isRealNum(math.substring(1, math.length())) || math.contains("E-")) {
                 return Double.parseDouble(math);
-            }
-            //普通运算
-            else {
+            } else {
                 return NormalCalculateMath(math);
             }
         }
     }
 
+    //ordinary arithmetic calculation
     private double NormalCalculateMath(String math) {
         if (math.length() == 0) {
             return Double.MAX_VALUE;
@@ -332,9 +336,10 @@ public class CalculateExecutor {
     }
 
     private char getPrior(char oper1, char oper2) {
-        return operPrior[operMap.get(oper1)][operMap.get(oper2)]; //Map.get方法获取运算符的下标
+        return operationPriority[operationMap.get(oper1)][operationMap.get(oper2)];
     }
 
+    //get the right bracket index
     private int getFirstRightBracketIndex(String mathStr, int startIndex) {
         if (startIndex >= mathStr.length()) {
             return 0;

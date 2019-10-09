@@ -1,6 +1,10 @@
 package com.example.test.calculator;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -27,11 +31,12 @@ public class MainActivity extends Activity implements View.OnClickListener {
     private RecyclerView mSymbolView;
     private SymbolViewAdapter mSymbolAdapter;
     private CalculateExecutor calculateExecutor;
+    private SharedPreferences mSharedPreferences;
     private TextView tv_old;
     private String mInput;
+    private int mPrecision = Constant.DEFAULT_PRECISION;
     
     private boolean isClickEqual;
-    private String mOldInput;
 
     private Button btn_0;
     private Button btn_1;
@@ -43,6 +48,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
     private Button btn_7;
     private Button btn_8;
     private Button btn_9;
+    private Button btn_dot;
 
     private Button btn_π;
     private Button btn_e;
@@ -54,7 +60,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
     private Button btn_reciprocal;
     private Button btn_equal;
 
-    private Button btn_func_add;
+    private Button btn_precision;
     private Button btn_clear;
     private Button btn_del;
     private Button btn_bracket_left;
@@ -74,7 +80,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
     private void init() {
         mInput = "";
-        mOldInput = "";
+        mSharedPreferences = getSharedPreferences(getString(R.string.pref_settings), MODE_PRIVATE);
         calculateExecutor = new CalculateExecutor(getApplicationContext());
         LinearLayoutManager manager = new LinearLayoutManager(getApplicationContext());
         manager.setOrientation(LinearLayoutManager.HORIZONTAL);
@@ -100,6 +106,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
         btn_7 = findViewById(R.id.btn_7);
         btn_8 = findViewById(R.id.btn_8);
         btn_9 = findViewById(R.id.btn_9);
+        btn_dot = findViewById(R.id.btn_dot);
         btn_π = findViewById(R.id.btn_π);
         btn_e = findViewById(R.id.btn_e);
         btn_add = findViewById(R.id.btn_add);
@@ -108,7 +115,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
         btn_div = findViewById(R.id.btn_div);
         btn_square = findViewById(R.id.btn_square);
         btn_reciprocal = findViewById(R.id.btn_reciprocal);
-        btn_func_add = findViewById(R.id.btn_func_add);
+        btn_precision = findViewById(R.id.btn_precision);
         btn_clear = findViewById(R.id.btn_clear);
         btn_del = findViewById(R.id.btn_del);
         btn_bracket_left = findViewById(R.id.btn_bracket_left);
@@ -124,6 +131,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
         btn_7.setOnClickListener(this);
         btn_8.setOnClickListener(this);
         btn_9.setOnClickListener(this);
+        btn_dot.setOnClickListener(this);
         btn_π.setOnClickListener(this);
         btn_e.setOnClickListener(this);
         btn_add.setOnClickListener(this);
@@ -132,12 +140,32 @@ public class MainActivity extends Activity implements View.OnClickListener {
         btn_div.setOnClickListener(this);
         btn_square.setOnClickListener(this);
         btn_reciprocal.setOnClickListener(this);
-        btn_func_add.setOnClickListener(this);
+        btn_precision.setOnClickListener(this);
         btn_clear.setOnClickListener(this);
         btn_del.setOnClickListener(this);
         btn_bracket_left.setOnClickListener(this);
         btn_bracket_right.setOnClickListener(this);
         btn_equal.setOnClickListener(this);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (mSharedPreferences != null && mInputView != null) {
+            mInputView.setText(mSharedPreferences.getString(getString(R.string.pref_calculator_value), Constant.DEFAULT_CALCULATOR_VALUE));
+            mPrecision = mSharedPreferences.getInt(getString(R.string.pref_calculator_precision), Constant.DEFAULT_PRECISION);
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mSharedPreferences != null && mInputView != null) {
+            SharedPreferences.Editor editor = mSharedPreferences.edit();
+            editor.putString(getString(R.string.pref_calculator_value), mInputView.getText().toString().trim());
+            editor.putInt(getString(R.string.pref_calculator_precision), mPrecision);
+            editor.apply();
+        }
     }
 
     SymbolViewAdapter.SymbolListener mSymbolListener = new SymbolViewAdapter.SymbolListener() {
@@ -253,6 +281,17 @@ public class MainActivity extends Activity implements View.OnClickListener {
             case R.id.btn_9:
                 setNumInputView("9");
                 break;
+            case R.id.btn_dot:
+                if (mInput.length() == 0) {
+                    break;
+                } else {
+                    char lastInput = getLastInput();
+                    if (Utils.isNum(lastInput + "")) {
+                        mInput += ".";
+                    }
+                }
+                mInputView.setText(mInput);
+                break;
             case R.id.btn_add:
                 setOperaInputView("+");
                 break;
@@ -277,7 +316,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
             case R.id.btn_reciprocal:
                 setFunInputView("(1÷");
                 break;
-            case R.id.btn_func_add:
+            case R.id.btn_precision:
+                showPercisionDialog();
                 break;
             case R.id.btn_clear:
                 mInput = "0";
@@ -302,7 +342,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
                     if (Utils.isNum(lastInput + "") || Utils.isNoNumAfter(lastInput) || ")".equals(lastInput + "")) {
                         mInput += "×(";
                     } else {
-                        mInput += "(";
+                        if (lastInput != '.') {
+                            mInput += "(";
+                        }
                     }
                 }
                 mInputView.setText(mInput);
@@ -311,7 +353,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 if (mInput.length() == 0 || (mInput.length() == 1 && mInput.equals("0"))) {
                     mInput = ")";
                 } else {
-                    if (Utils.isOpera(mInput.charAt(mInput.length() - 1))) {
+                    if (Utils.isOpera(mInput.charAt(mInput.length() - 1)) || mInput.charAt(mInput.length() - 1) == '.') {
                         Utils.showToast(getApplicationContext(), getString(R.string.input_wrong));
                     } else {
                         mInput += ")";
@@ -321,7 +363,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 break;
             case R.id.btn_equal:
                 isClickEqual=true;
-                String result = calculateExecutor.scienceCalculate(mInput);
+                String result = calculateExecutor.scienceCalculate(mInput, mPrecision);
                 mInput = result;
                 if (mInput.charAt(mInput.length() - 2) == '.' && mInput.charAt(mInput.length() - 1) == '0') {
                     mInput = mInput.substring(0, mInput.length() - 2);
@@ -395,6 +437,25 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
     private char getLastInput() {
         return mInput.charAt(mInput.length() - 1);
+    }
+
+    private void showPercisionDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getString(R.string.precision_selection)).setSingleChoiceItems(Constant.precisionArray, 1, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                try {
+                    mPrecision = Integer.valueOf(Constant.precisionArray[which]);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).setPositiveButton("yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Utils.showToast(getApplicationContext(), getString(R.string.precision_value) + " " + mPrecision);
+            }
+        }).setNegativeButton("no", null).create().show();
     }
 
 

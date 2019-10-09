@@ -48,12 +48,12 @@
             android:layout_weight="1">
 
             <Button
-                android:id="@+id/btn_func_add"
+                android:id="@+id/btn_precision"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center"
                 android:background="@color/key_background_color"
-                android:text="func+"
+                android:text="prec"
                 android:textAllCaps="false"
                 android:textColor="@color/key_text_color"
                 android:textSize="26sp" />

@@ -48,7 +48,7 @@ public class CalculateExecutor {
         String resultStr = "";
         if (!checkMathStrAvailable(mathStr)) {
             Utils.showToast(mContext, mContext.getString(R.string.math_error));
-            return "Error";
+            return Constant.ERROR;
         }
 
         mathStr = mathStr.replace(" ", "");
@@ -65,7 +65,7 @@ public class CalculateExecutor {
 
         double result = calculateMath(mathStr);
         if (result == Double.MAX_VALUE)
-            resultStr = "Error";
+            resultStr = Constant.ERROR;
         else {
             BigDecimal b = new BigDecimal(result);
             resultStr = String.valueOf(b.setScale(percision, BigDecimal.ROUND_HALF_UP).doubleValue()); //rounding to reserve the corresponding decimal number

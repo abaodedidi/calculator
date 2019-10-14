@@ -7,4 +7,7 @@
     <color name="main_background">#ffffffff</color>
     <color name="key_text_color">#ff000000</color>
     <color name="key_background_color">#ffffffff</color>
+
+    <color name="guide_cricle_shape">#f00</color>
+    <color name="guide_circle_shape_select">#5000</color>
 </resources>

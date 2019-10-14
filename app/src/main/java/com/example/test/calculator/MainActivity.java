@@ -34,6 +34,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
     private SharedPreferences mSharedPreferences;
     private TextView tv_old;
     private String mInput;
+    private String mCalResult;
     private int mPrecision = Constant.DEFAULT_PRECISION;
     
     private boolean isClickEqual;
@@ -172,7 +173,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
         @Override
         public void onSymbolClick(int index) {
-            if (mInput.equals("Error")) {
+            if (mInput.equals(Constant.ERROR)) {
                 mInput = "0";
             }
             if (isClickEqual) {
@@ -226,7 +227,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
-        if (mInput.equals("Error")) {
+        if (mInput.equals(Constant.ERROR)) {
             mInput = "0";
         }
         if (v.getId() != R.id.btn_equal && isClickEqual) {
@@ -363,7 +364,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 break;
             case R.id.btn_equal:
                 isClickEqual=true;
-                String result = calculateExecutor.scienceCalculate(mInput, mPrecision);
+                String result = scienceCalculate();
                 mInput = result;
                 if (mInput.charAt(mInput.length() - 2) == '.' && mInput.charAt(mInput.length() - 1) == '0') {
                     mInput = mInput.substring(0, mInput.length() - 2);
@@ -371,6 +372,35 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 mInputView.setText(mInput);
                 break;
         }
+    }
+
+    private String scienceCalculate() {
+        Thread calThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    String calResult = calculateExecutor.scienceCalculate(mInput, mPrecision);
+                    if (!Thread.currentThread().isInterrupted()) {
+                        mCalResult = calResult;
+                    }
+                } catch (Exception e) {
+                    mCalResult = Constant.ERROR;
+                }
+            }
+        });
+        calThread.start();
+        for (int i = 0; i < 50 && calThread.isAlive(); i++) {
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                mCalResult = Constant.ERROR;
+            }
+        }
+        if (calThread.isAlive()) {
+            calThread.interrupt();
+            mCalResult = getString(R.string.too_much_calculation);
+        }
+        return mCalResult;
     }
 
     private void setOperaInputView(String value) {

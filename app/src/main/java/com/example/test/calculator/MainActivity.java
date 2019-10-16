@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
@@ -36,7 +37,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
     private String mInput;
     private String mCalResult;
     private int mPrecision = Constant.DEFAULT_PRECISION;
-    
+    private int mFuncIndex = Constant.DEFAULT_FUNC;
+
     private boolean isClickEqual;
 
     private Button btn_0;
@@ -58,7 +60,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
     private Button btn_mul;
     private Button btn_div;
     private Button btn_square;
-    private Button btn_reciprocal;
+    private Button btn_drawfunc;
     private Button btn_equal;
 
     private Button btn_precision;
@@ -115,7 +117,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
         btn_mul = findViewById(R.id.btn_mul);
         btn_div = findViewById(R.id.btn_div);
         btn_square = findViewById(R.id.btn_square);
-        btn_reciprocal = findViewById(R.id.btn_reciprocal);
+        btn_drawfunc = findViewById(R.id.btn_drawfunc);
         btn_precision = findViewById(R.id.btn_precision);
         btn_clear = findViewById(R.id.btn_clear);
         btn_del = findViewById(R.id.btn_del);
@@ -140,7 +142,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
         btn_mul.setOnClickListener(this);
         btn_div.setOnClickListener(this);
         btn_square.setOnClickListener(this);
-        btn_reciprocal.setOnClickListener(this);
+        btn_drawfunc.setOnClickListener(this);
         btn_precision.setOnClickListener(this);
         btn_clear.setOnClickListener(this);
         btn_del.setOnClickListener(this);
@@ -200,11 +202,15 @@ public class MainActivity extends Activity implements View.OnClickListener {
                     setFunInputView("√(");
                     break;
                 case 6:
-                    setFunInputView("log(");
+                    setFunInputView("(1÷");
                     break;
                 case 7:
+                    setFunInputView("log(");
+                    break;
+                case 8:
                     setFunInputView("ln(");
                     break;
+
             }
         }
     };
@@ -314,8 +320,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
             case R.id.btn_square:
                 setIndexInputView("^2");
                 break;
-            case R.id.btn_reciprocal:
-                setFunInputView("(1÷");
+            case R.id.btn_drawfunc:
+                showDrawFuncDialog();
                 break;
             case R.id.btn_precision:
                 showPercisionDialog();
@@ -484,6 +490,27 @@ public class MainActivity extends Activity implements View.OnClickListener {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Utils.showToast(getApplicationContext(), getString(R.string.precision_value) + " " + mPrecision);
+            }
+        }).setNegativeButton("no", null).create().show();
+    }
+
+    private void showDrawFuncDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getString(R.string.function_selection)).setSingleChoiceItems(Constant.funcArray, 1, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                try {
+                    mFuncIndex = which;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).setPositiveButton("yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Intent intent = new Intent(MainActivity.this, FunctionActivity.class);
+                intent.putExtra("funcIndex", mFuncIndex);
+                startActivity(intent);
             }
         }).setNegativeButton("no", null).create().show();
     }

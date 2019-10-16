@@ -241,8 +241,8 @@
                 android:id="@+id/btn_square"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:gravity="center"
                 android:background="@color/key_background_color"
+                android:gravity="center"
                 android:text="x^2"
                 android:textAllCaps="false"
                 android:textColor="@color/key_text_color"
@@ -294,12 +294,12 @@
             android:layout_weight="1">
 
             <Button
-                android:id="@+id/btn_reciprocal"
+                android:id="@+id/btn_drawfunc"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:gravity="center"
                 android:background="@color/key_background_color"
-                android:text="1/x"
+                android:gravity="center"
+                android:text="func"
                 android:textAllCaps="false"
                 android:textColor="@color/key_text_color"
                 android:textSize="32sp" />

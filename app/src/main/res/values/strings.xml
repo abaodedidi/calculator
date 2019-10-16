@@ -9,6 +9,19 @@
     <string name="div_zero">The divisor cannot be 0!</string>
     <string name="math_error">You entered the wrong formula！</string>
     <string name="precision_selection">Precision Selection</string>
+    <string name="function_selection">Function Selection</string>
     <string name="precision_value">the precision is </string>
     <string name="too_much_calculation">Too much calculation</string>
+    <string name="not_supported">Temporarily not supported</string>
+
+    <string name="sin_name">Sine Function</string>
+    <string name="cos_name">Cosine Function</string>
+    <string name="tan_name">Tangent Function</string>
+    <string name="ex_name">e^x Function</string>
+    <string name="xy_name">x^y Function</string>
+    <string name="sqrt_name">√x Function</string>
+    <string name="log_name">Logarithmic Function</string>
+    <string name="ln_name">Ln Function</string>
+    <string name="squ_name">Quadratic Function</string>
+    <string name="rec_name">Reciprocal Function</string>
 </resources>

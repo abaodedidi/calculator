@@ -28,3 +28,12 @@ and can redisplay the last operation result when the user restarts the program.
 8. Equation editing and equation legality check
 The user can modify and delete the other program during the calculation process. When the user clicks "=", the program will check
 the legality of the other program to avoid calculation errors.
+9.Drawing function
+The user can click the func button to open the function drawing function. The function drawing function currently includes graphic drawing
+such as "sin", "cos", "tan" and other functions. Users can choose to draw corresponding function graphs according to their needs.
+10.Unit testing
+the program uses JUnit4 to write unit test cases to verify the program's enforceability and accuracy. The unit test case is
+in the "ExampleUnitTest" class.
+11.The first boot
+when the user opens the program for the first time, will enter the boot page, the user can enter the main program by
+clicking "start".
